@@ -1,0 +1,26 @@
+@model BudgetApp.Models.Transaction
+@{
+    ViewData["Title"] = "Ta bort transaktion";
+}
+<h1>Ta bort transaktion</h1>
+
+<div class="alert alert-warning">
+    Är du säker på att du vill ta bort denna transaktion?
+</div>
+
+<dl class="row">
+    <dt class="col-sm-2">Beskrivning</dt>
+    <dd class="col-sm-10">@Model.Description</dd>
+
+    <dt class="col-sm-2">Belopp</dt>
+    <dd class="col-sm-10">@Model.Amount.ToString("C")</dd>
+
+    <dt class="col-sm-2">Datum</dt>
+    <dd class="col-sm-10">@Model.Date.ToString("yyyy-MM-dd")</dd>
+</dl>
+
+<form asp-action="Delete">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Ta bort</button>
+    <a asp-action="Index" class="btn btn-secondary">Avbryt</a>
+</form>

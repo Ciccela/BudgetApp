@@ -1,0 +1,88 @@
+@model List<BudgetApp.Controllers.BudgetRowVm>
+@{
+    ViewData["Title"] = "Budget per kategori";
+    int month = (int)ViewBag.Month;
+    int year = (int)ViewBag.Year;
+}
+
+<h1 class="mb-3">Budget per kategori</h1>
+
+@if (TempData["StatusMessage"] is string msg)
+{
+    <div class="alert alert-info">@msg</div>
+}
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-2">
+        <label class="form-label">Månad</label>
+        <input type="number" name="month" min="1" max="12" class="form-control" value="@month" />
+    </div>
+    <div class="col-md-2">
+        <label class="form-label">År</label>
+        <input type="number" name="year" min="2000" max="2100" class="form-control" value="@year" />
+    </div>
+    <div class="col-md-8 d-flex align-items-end gap-2">
+        <button type="submit" class="btn btn-primary">Visa</button>
+        <a class="btn btn-outline-primary" asp-action="QuickSet" asp-route-month="@month" asp-route-year="@year">
+            Snabbsätt alla
+        </a>
+    </div>
+</form>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-light border">Inga kategorier hittades. Skapa kategorier först.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>Kategori</th>
+                    <th class="text-end">Budget</th>
+                    <th class="text-end">Utfall</th>
+                    <th class="text-end">Kvar</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var row in Model)
+                {
+                    <tr>
+                        <td>@row.CategoryName</td>
+                        <td class="text-end">@row.BudgetAmount.ToString("C")</td>
+                        <td class="text-end">@row.SpentAmount.ToString("C")</td>
+                        <td class="text-end @(row.Remaining < 0 ? "text-danger" : "text-success")">
+                            @row.Remaining.ToString("C")
+                        </td>
+                        <td>
+                            @if (row.BudgetAmount == 0)
+                            {
+                                <span class="badge bg-secondary">Ingen budget</span>
+                            }
+                            else if (row.OverBudget)
+                            {
+                                <span class="badge bg-danger">Över budget</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-success">OK</span>
+                            }
+                        </td>
+                        <td class="text-end">
+                            <a class="btn btn-sm btn-outline-secondary"
+                               asp-action="Edit"
+                               asp-route-categoryId="@row.CategoryId"
+                               asp-route-month="@month"
+                               asp-route-year="@year">
+                                Redigera
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

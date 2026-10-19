@@ -1,0 +1,44 @@
+@model BudgetApp.Controllers.EditBudgetVm
+@{
+    ViewData["Title"] = "Redigera budget";
+}
+
+<h1>Redigera budget</h1>
+
+<div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+<form asp-action="Edit" method="post">
+    @Html.AntiForgeryToken()
+
+    <input asp-for="CategoryId" type="hidden" />
+
+    <div class="mb-3">
+        <label class="form-label">Kategori</label>
+        <input class="form-control" value="@Model.CategoryName" disabled />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Month" class="form-label">Månad</label>
+        <input asp-for="Month" class="form-control" min="1" max="12" />
+        <span asp-validation-for="Month" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Year" class="form-label">År</label>
+        <input asp-for="Year" class="form-control" min="2000" max="2100" />
+        <span asp-validation-for="Year" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Amount" class="form-label">Budgetbelopp</label>
+        <input asp-for="Amount" class="form-control" />
+        <span asp-validation-for="Amount" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Spara</button>
+    <a asp-action="Index" asp-route-month="@Model.Month" asp-route-year="@Model.Year" class="btn btn-secondary">Avbryt</a>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

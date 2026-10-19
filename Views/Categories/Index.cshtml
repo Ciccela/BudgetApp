@@ -1,0 +1,31 @@
+@model IEnumerable<BudgetApp.Models.Category>
+
+@{
+    ViewData["Title"] = "Kategorier";
+}
+
+<h1>Kategorier</h1>
+
+<p>
+    <a class="btn btn-primary" asp-action="Create">Lägg till kategori</a>
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Namn</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>@item.Name</td>
+            <td class="text-end">
+                <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@item.Id">Redigera</a>
+                <a class="btn btn-sm btn-outline-danger" asp-action="Delete" asp-route-id="@item.Id">Ta bort</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

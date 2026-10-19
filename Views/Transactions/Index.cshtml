@@ -1,0 +1,120 @@
+@model IEnumerable<BudgetApp.Models.Transaction>
+
+@{
+    ViewData["Title"] = "Transaktioner";
+    var month = (int)ViewBag.Month;
+    var year = (int)ViewBag.Year;
+    var categoryId = (int)ViewBag.CategoryId;
+    decimal totalIncome = (decimal)ViewBag.TotalIncome;
+    decimal totalExpense = (decimal)ViewBag.TotalExpense;
+    decimal balance = (decimal)ViewBag.Balance;
+}
+
+<h1 class="mb-3">Transaktioner</h1>
+
+@if (TempData["StatusMessage"] is string msg)
+{
+    <div class="alert alert-info">@msg</div>
+}
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-2">
+        <label class="form-label">Månad</label>
+        <input type="number" name="month" class="form-control" min="1" max="12" value="@month" />
+    </div>
+    <div class="col-md-2">
+        <label class="form-label">År</label>
+        <input type="number" name="year" class="form-control" min="2000" max="2100" value="@year" />
+    </div>
+    <div class="col-md-4">
+        <label class="form-label">Kategori</label>
+        <select name="categoryId" class="form-select" asp-items="ViewBag.Categories">
+            <option value="0">Alla kategorier</option>
+        </select>
+    </div>
+    <div class="col-md-4 d-flex align-items-end gap-2">
+        <button class="btn btn-primary" type="submit">Filtrera</button>
+        <a class="btn btn-success" asp-action="Create">Ny transaktion</a>
+        <a class="btn btn-outline-success"
+           asp-action="ExportCsv"
+           asp-route-month="@month"
+           asp-route-year="@year"
+           asp-route-categoryId="@categoryId">
+            Exportera CSV
+        </a>
+    </div>
+</form>
+
+<form asp-action="GenerateRecurring" method="post" class="mb-3">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="month" value="@month" />
+    <input type="hidden" name="year" value="@year" />
+    <button type="submit" class="btn btn-outline-primary">
+        Skapa månadens återkommande
+    </button>
+</form>
+
+<div class="row mb-3">
+    <div class="col-md-4">
+        <div class="card p-3 shadow-sm border-0">
+            <strong>Inkomster:</strong> @totalIncome.ToString("C")
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card p-3 shadow-sm border-0">
+            <strong>Utgifter:</strong> @totalExpense.ToString("C")
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card p-3 shadow-sm border-0">
+            <strong>Saldo:</strong>
+            <span class="@(balance >= 0 ? "text-success" : "text-danger")">
+                @balance.ToString("C")
+            </span>
+        </div>
+    </div>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-light border">
+        Inga transaktioner hittades för vald period/filter.
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>Datum</th>
+                    <th>Beskrivning</th>
+                    <th>Kategori</th>
+                    <th>Typ</th>
+                    <th>Återkommande</th>
+                    <th>Dag</th>
+                    <th class="text-end">Belopp</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Date.ToString("yyyy-MM-dd")</td>
+                    <td>@item.Description</td>
+                    <td>@item.Category?.Name</td>
+                    <td>@(item.IsIncome ? "Inkomst" : "Utgift")</td>
+                    <td>@(item.IsRecurring ? "Ja" : "Nej")</td>
+                    <td>@item.RecurringDayOfMonth</td>
+                    <td class="text-end">@item.Amount.ToString("C")</td>
+                    <td class="text-end">
+                        <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@item.Id">Redigera</a>
+                        <a class="btn btn-sm btn-outline-danger" asp-action="Delete" asp-route-id="@item.Id">Ta bort</a>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}

@@ -1,0 +1,15 @@
+@model BudgetApp.Models.Category
+@{
+    ViewData["Title"] = "Ta bort kategori";
+}
+<h1>Ta bort kategori</h1>
+
+<div class="alert alert-warning">
+    Är du säker på att du vill ta bort kategorin <strong>@Model.Name</strong>?
+</div>
+
+<form asp-action="Delete">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Ta bort</button>
+    <a asp-action="Index" class="btn btn-secondary">Avbryt</a>
+</form>

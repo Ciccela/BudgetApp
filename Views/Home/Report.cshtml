@@ -1,0 +1,153 @@
+@model BudgetApp.Controllers.DashboardVm
+@{
+    Layout = null;
+    var c = Model.Comparison;
+}
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="utf-8" />
+    <title>Månadsrapport @Model.Year-@Model.Month.ToString("D2")</title>
+    <style>
+        body { font-family: Arial, Helvetica, sans-serif; margin: 24px; color: #222; }
+        h1, h2, h3 { margin: 0 0 10px 0; }
+        .muted { color: #666; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 16px 0; }
+        .card { border: 1px solid #ddd; border-radius: 8px; padding: 12px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+        th, td { border: 1px solid #ddd; padding: 8px; font-size: 14px; }
+        th { background: #f7f7f7; text-align: left; }
+        .right { text-align: right; }
+        .ok { color: #0a7a2f; font-weight: bold; }
+        .bad { color: #b42318; font-weight: bold; }
+        .section { margin-top: 20px; }
+        .print-btn { margin-top: 14px; }
+        @@media print {
+            .print-btn { display: none; }
+            body { margin: 10mm; }
+        }
+    </style>
+</head>
+<body>
+    <h1>BudgetApp – Månadsrapport</h1>
+    <div class="muted">Period: @Model.Year-@Model.Month.ToString("D2")</div>
+
+    <button class="print-btn" onclick="window.print()">Skriv ut / Spara som PDF</button>
+
+    <div class="grid">
+        <div class="card">
+            <div class="muted">Inkomster</div>
+            <h2>@Model.TotalIncome.ToString("C")</h2>
+        </div>
+        <div class="card">
+            <div class="muted">Utgifter</div>
+            <h2>@Model.TotalExpense.ToString("C")</h2>
+        </div>
+        <div class="card">
+            <div class="muted">Saldo</div>
+            <h2>@Model.Balance.ToString("C")</h2>
+        </div>
+    </div>
+
+    <div class="section">
+        <h3>Månadsjämförelse</h3>
+        <div class="muted">@c.CurrentYear-@c.CurrentMonth.ToString("D2") vs @c.PreviousYear-@c.PreviousMonth.ToString("D2")</div>
+        <table>
+            <thead>
+                <tr>
+                    <th></th>
+                    <th class="right">Nuvarande</th>
+                    <th class="right">Föregående</th>
+                    <th class="right">Skillnad</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Inkomster</td>
+                    <td class="right">@c.CurrentIncome.ToString("C")</td>
+                    <td class="right">@c.PreviousIncome.ToString("C")</td>
+                    <td class="right @(c.IncomeDiff >= 0 ? "ok" : "bad")">@c.IncomeDiff.ToString("C")</td>
+                </tr>
+                <tr>
+                    <td>Utgifter</td>
+                    <td class="right">@c.CurrentExpense.ToString("C")</td>
+                    <td class="right">@c.PreviousExpense.ToString("C")</td>
+                    <td class="right @(c.ExpenseDiff <= 0 ? "ok" : "bad")">@c.ExpenseDiff.ToString("C")</td>
+                </tr>
+                <tr>
+                    <td><strong>Saldo</strong></td>
+                    <td class="right"><strong>@c.CurrentBalance.ToString("C")</strong></td>
+                    <td class="right"><strong>@c.PreviousBalance.ToString("C")</strong></td>
+                    <td class="right @(c.BalanceDiff >= 0 ? "ok" : "bad")"><strong>@c.BalanceDiff.ToString("C")</strong></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="section">
+        <h3>Budget vs utfall</h3>
+        @if (!Model.BudgetRows.Any())
+        {
+            <p class="muted">Ingen budgetdata för perioden.</p>
+        }
+        else
+        {
+            <table>
+                <thead>
+                    <tr>
+                        <th>Kategori</th>
+                        <th class="right">Budget</th>
+                        <th class="right">Utfall</th>
+                        <th class="right">Kvar</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var row in Model.BudgetRows.OrderBy(x => x.CategoryName))
+                {
+                    <tr>
+                        <td>@row.CategoryName</td>
+                        <td class="right">@row.Budget.ToString("C")</td>
+                        <td class="right">@row.Spent.ToString("C")</td>
+                        <td class="right">@row.Remaining.ToString("C")</td>
+                        <td>@(row.Budget == 0 ? "Ingen budget" : row.OverBudget ? "Över budget" : "OK")</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        }
+    </div>
+
+    <div class="section">
+        <h3>Största utgifter</h3>
+        @if (!Model.TopExpenses.Any())
+        {
+            <p class="muted">Inga utgifter i perioden.</p>
+        }
+        else
+        {
+            <table>
+                <thead>
+                    <tr>
+                        <th>Datum</th>
+                        <th>Beskrivning</th>
+                        <th>Kategori</th>
+                        <th class="right">Belopp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var t in Model.TopExpenses)
+                {
+                    <tr>
+                        <td>@t.Date.ToString("yyyy-MM-dd")</td>
+                        <td>@t.Description</td>
+                        <td>@t.Category?.Name</td>
+                        <td class="right">@t.Amount.ToString("C")</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        }
+    </div>
+</body>
+</html>

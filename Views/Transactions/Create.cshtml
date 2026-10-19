@@ -1,0 +1,60 @@
+@model BudgetApp.Models.Transaction
+@{
+    ViewData["Title"] = "Ny transaktion";
+}
+<h1>Ny transaktion</h1>
+
+<div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+<form asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+
+    <div class="mb-3">
+        <label asp-for="Description" class="form-label"></label>
+        <input asp-for="Description" class="form-control" />
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Amount" class="form-label"></label>
+        <input asp-for="Amount" class="form-control" />
+        <span asp-validation-for="Amount" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Date" class="form-label"></label>
+        <input asp-for="Date" class="form-control" type="date" />
+        <span asp-validation-for="Date" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="CategoryId" class="form-label"></label>
+        <select asp-for="CategoryId" asp-items="ViewBag.CategoryId" class="form-select">
+            <option value="0">-- Välj kategori --</option>
+        </select>
+        <span asp-validation-for="CategoryId" class="text-danger"></span>
+    </div>
+
+    <div class="form-check mb-3">
+        <input asp-for="IsIncome" class="form-check-input" />
+        <label asp-for="IsIncome" class="form-check-label"></label>
+    </div>
+
+    <div class="form-check mb-3">
+        <input asp-for="IsRecurring" class="form-check-input" />
+        <label asp-for="IsRecurring" class="form-check-label"></label>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="RecurringDayOfMonth" class="form-label"></label>
+        <input asp-for="RecurringDayOfMonth" type="number" min="1" max="28" class="form-control" />
+        <span asp-validation-for="RecurringDayOfMonth" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Spara</button>
+    <a asp-action="Index" class="btn btn-secondary">Avbryt</a>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
